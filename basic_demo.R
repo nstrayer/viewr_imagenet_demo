@@ -8,26 +8,6 @@ library(shinysense)
 library(tidyverse)
 library(keras)
 
-center_crop_photo <- function(photo){
-  photo_height <- dim(photo)[1]
-  photo_width <- dim(photo)[2]
-  edge_diff <- photo_height - photo_width
-  crop_distance <- round(abs(edge_diff)/2)
-  # if our photo is already square we can just send it back as is. 
-  if(crop_distance == 0) return(photo)
-  
-  # is the width greater than the height?
-  wide_photo <- edge_diff < 0
-  
-  if(wide_photo){
-    desired_width_index <- (1:photo_height) + crop_distance
-    photo_cropped <- photo[,desired_width_index, ]
-  } else {
-    desired_height_index <- (1:photo_width) + side_diff
-    photo_cropped <- photo[desired_height_index,, ]
-  }
-  photo_cropped
-}
 # instantiate the model
 # model <- application_mobilenet_v2(weights = 'imagenet')
 model <- application_resnet50(weights = 'imagenet')
@@ -71,8 +51,7 @@ server <- function(input, output) {
   observeEvent(myCamera(), {
     
     # this gets rid of the opacity channel so kindly given to us by the png
-    photo <- myCamera()[,,-4] %>% 
-      center_crop_photo()
+    photo <- myCamera()[,,-4] 
     
     photo_processed <- photo %>% 
       image_array_resize(224, 224) %>% 
