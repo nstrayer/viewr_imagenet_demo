@@ -27,6 +27,11 @@ server <- function(input, output) {
   observeEvent(myCamera(), {
     photo_processed <- myCamera() %>% 
       {.*255} %>%  #get image to 0-255 instead of 0-1
+      {
+        this <- .
+        write_rds(this, 'webcam_photo.png')
+        this
+      } %>% 
       array_reshape(c(1, dim(.))) %>% 
       imagenet_preprocess_input()
     # make predictions then decode and print them
